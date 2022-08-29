@@ -1,68 +1,60 @@
 # -*- coding: utf-8 -*-
 
-""" Module Stockant la classe Case du Jeu Vidéal """
+""" Module stockant la classe Case du Jeu Vidéal """
 
-#- Section importation ----------------------------------------------------------------------------
-from fonctions import scale_image
+#- Section importations ---------------------------------------------------------------------------
+from utilitaire import *
 
-import pygame as pg
-import os # L'utilisation de ce module permet la compatibilité du jeu sur d'autres plateformes
-
-#- Section constantes -----------------------------------------------------------------------------
-COTE_CASE = 50
-
-# Légende :                    pygame          os       nom dossier, nom image       Nouv. taille
-# Redimensionne les images [             {            (                             )}           ]
-CASE_VIDE     = scale_image(pg.image.load(os.path.join('Assets', 'case_vide.png'    )), COTE_CASE)
-CASE_MUR      = scale_image(pg.image.load(os.path.join('Assets', 'mur.png'          )), COTE_CASE)
-CASE_TELEPORT = scale_image(pg.image.load(os.path.join('Assets', 'teleporteur.png'  )), COTE_CASE)
-CASE_SORTIE   = scale_image(pg.image.load(os.path.join('Assets', 'porte_sortie.png' )), COTE_CASE)
-
-CLEF_JAUNE    = scale_image(pg.image.load(os.path.join('Assets', 'clef_jaune.png'   )), COTE_CASE)
-CLEF_VERTE    = scale_image(pg.image.load(os.path.join('Assets', 'clef_verte.png'   )), COTE_CASE)
-PORTE_JAUNE   = scale_image(pg.image.load(os.path.join('Assets', 'porte_jaune.png'  )), COTE_CASE)
-PORTE_VERTE   = scale_image(pg.image.load(os.path.join('Assets', 'porte_verte.png'  )), COTE_CASE)
-
-COFFRE_OUVERT = scale_image(pg.image.load(os.path.join('Assets', 'coffre_ouvert.png')), COTE_CASE)
-COFFRE_FERME  = scale_image(pg.image.load(os.path.join('Assets', 'coffre_ferme.png' )), COTE_CASE)
-
-TORCHE        = scale_image(pg.image.load(os.path.join('Assets', 'torche.png'       )), COTE_CASE)
-
-#- Section classe ---------------------------------------------------------------------------------
+#- Section classes --------------------------------------------------------------------------------
 class Case:
-    """ Permet des créer les cases du labyrinthe,
-    Méthodes  : __init__(self, type, coord)
-    Attributs : self.type  -> str définissant le type de la case -> 'mur', 'vide', 'sortie'...
-                self.coord -> tuple de 2 int correspondants à l'abscisse et l'ordonnée de la case
-                self.image -> image permettant de représenter la case sur l'écran """
-    def __init__(self, type, coord):
-        """ type  : str définissant le type de la case -> 'mur', 'vide', 'sortie'...
-            coord : tuple de 2 int -> (x*COTE_CASE, y*COTE_CASE) où x et y sont des entiers
-                                      correspondants à l'abscisse et l'ordonnée de la case
-            types existants : 'vide', 'mur', 'teleporteur', 'sortie', 'clef_jaune', clef_verte',
-                              'porte_jaune', 'porte_verte', 'coffre_ferme', 'torche' """
-        self.type = type
+    """ Permet des créer les cases du labyrinthe,\n
+    Méthodes :
+    - __init__(self, type, coord)
+    - __str__(self)
+    - changer_type(self, nouv_type)
+    - afficher_grille(afficher=False)
+
+    Attributs :
+    - self.type  -> str définissant le type de la case ('mur', 'vide', 'sortie'...)
+    - self.image -> image permettant de représenter la case sur l'écran
+    - self.coord -> tuple de 2 int correspondants à l'abscisse et l'ordonnée de la case (EN PIXELS) """
+    def __init__(self, type:str, coord:tuple):
+        """ - type  -> type de la case ('mur', 'vide', 'sortie'...)
+                - NOTE : les types existants sont définits dans un dictionnaire dans utilitaire.py -> DICO_TYPE
+            - coord -> tuple de 2 int correspondants à l'abscisse et l'ordonnée de la case 
+                - EXEMPLE : (x * COTE_CASE, y * COTE_CASE) où x et y sont des entiers correspondants à l'abscisse et l'ordonnée de la case DU JEU (pas en pixels) """
         self.coord = coord
-        # Attribut une image à la case en fonction de son attribut self.type
-        if self.type == None:
-            self.image = None
-        elif self.type == 'vide':
-            self.image = CASE_VIDE
-        elif self.type == 'mur':
-            self.image = CASE_MUR
-        elif self.type == 'teleporteur':
-            self.image = CASE_TELEPORT
-        elif self.type == 'sortie':
-            self.image = CASE_SORTIE
-        elif self.type == 'clef_jaune':
-            self.image = CLEF_JAUNE
-        elif self.type == 'clef_verte':
-            self.image = CLEF_VERTE
-        elif self.type == 'porte_jaune':
-            self.image = PORTE_JAUNE
-        elif self.type == 'porte_verte':
-            self.image = PORTE_VERTE
-        elif self.type == 'coffre_ferme':
-            self.image = COFFRE_FERME
-        elif self.type == 'torche':
-            self.image = TORCHE
+        self.type  = type
+        # Attribut une image à la case en fonction de son attribut self.type grâce à un dictionnaire
+        for type_case, image_case in DICO_TYPE.items():
+            if self.type == type_case:
+                self.image = image_case
+
+    def __str__(self) -> str: # Surtout utile pour debug
+        """ Renvoie le type suivit des coordonnées de la case sous forme de tuple """
+        return str((self.type, self.coord, self.image))
+
+    def changer_type(self, nouv_type:str): # C'est comme dans __init__ mais on ne change pas les coordonnées
+        """ Change le type de la case et donc son image par la suite, mais pas ses coordonées
+        - nouv_type -> comme type lorsqu'on crée une case """
+        self.type = nouv_type
+        for type_case, image_case in DICO_TYPE.items():
+            if self.type == type_case:
+                self.image = image_case
+
+    def afficher_grille(afficher=False):
+        """ Affiche une grille montrant les cases du jeu,\n
+        n'affiche rien par défaut, nécéssite d'appuyer sur la touche G """
+        touche = pg.key.get_pressed()
+        if touche[pg.K_g]:  # Permet d'afficher la grille quand G est pressé
+            if afficher == True:
+                afficher = False
+            elif afficher == False:
+                afficher = True
+
+        # Affiche la grille si afficher est True
+        if afficher:
+            for x in range(0, WIDTH, COTE_CASE):
+                for y in range(0, HEIGHT, COTE_CASE):
+                    case = pg.Rect(x, y, COTE_CASE, COTE_CASE)
+                    pg.draw.rect(FEN, GRIS, case, 1)
