@@ -13,7 +13,7 @@ Pour créer une map :
 ---------------------------------------------------------------------------------------------------
 Légende :
 - # -> mur
--   -> vide
+- " " -> vide
 - + -> téléporteur (inutilisé)
 - * -> coffre fermé
 - $ -> coffre ouvert
